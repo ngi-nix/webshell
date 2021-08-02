@@ -1,0 +1,93 @@
+{
+  "nodes": {
+    "napalm": {
+      "inputs": {
+        "nixpkgs": "nixpkgs"
+      },
+      "locked": {
+        "lastModified": 1626421722,
+        "narHash": "sha256-H2yYSYxg+j0oiXaKTF1nVCHsX99sMASTg2YvDAPXQpQ=",
+        "owner": "nix-community",
+        "repo": "napalm",
+        "rev": "333a4c878a8486d446c15a58a149f0e6436a38b0",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-community",
+        "repo": "napalm",
+        "type": "github"
+      }
+    },
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1627915232,
+        "narHash": "sha256-nTrj9AiXN6f08C57ohPexXUzYdDEy2HDUe2Uq9Z7LN4=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "5701e5bc3bfb317e1f37ff3fb889eae7584a1206",
+        "type": "github"
+      },
+      "original": {
+        "id": "nixpkgs",
+        "type": "indirect"
+      }
+    },
+    "nixpkgs_2": {
+      "locked": {
+        "lastModified": 1627805549,
+        "narHash": "sha256-+LHhcpzw6vAxF6q0VSLkZSEGpDC02JN21KM8eUWz+is=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "16bf3980bfa0d8929639be93fa8491ebad9d61ec",
+        "type": "github"
+      },
+      "original": {
+        "id": "nixpkgs",
+        "ref": "nixos-21.05",
+        "type": "indirect"
+      }
+    },
+    "root": {
+      "inputs": {
+        "napalm": "napalm",
+        "nixpkgs": "nixpkgs_2",
+        "webshell-sandbox": "webshell-sandbox",
+        "webshell-webapp": "webshell-webapp"
+      }
+    },
+    "webshell-sandbox": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1576019733,
+        "narHash": "sha256-YDNKpoTPWkFuhuGg+65XPtxYImjcR7WQyg7bodtsyBs=",
+        "owner": "websh-org",
+        "repo": "sandbox",
+        "rev": "7cc5d8ca332a3e595f44a1bba431a16b2a6fda03",
+        "type": "github"
+      },
+      "original": {
+        "owner": "websh-org",
+        "repo": "sandbox",
+        "type": "github"
+      }
+    },
+    "webshell-webapp": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1583963772,
+        "narHash": "sha256-gVgoNWNx/bEC+EEZtIlZyGqBseLgB//RqrwuUPNa34s=",
+        "owner": "websh-org",
+        "repo": "web-shell-app",
+        "rev": "52a0e7bf243bf88e018f894ad38efe69294d2218",
+        "type": "github"
+      },
+      "original": {
+        "owner": "websh-org",
+        "repo": "web-shell-app",
+        "type": "github"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}
