@@ -51,7 +51,24 @@
       "inputs": {
         "napalm": "napalm",
         "nixpkgs": "nixpkgs_2",
+        "webshell-app-textarea": "webshell-app-textarea",
         "webshell-sandbox": "webshell-sandbox"
+      }
+    },
+    "webshell-app-textarea": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1571001522,
+        "narHash": "sha256-HPN3OHshnMj9OH312rxJMdRNw6PZu2Z2PRt/IDlVpmg=",
+        "owner": "websh-org",
+        "repo": "app-textarea",
+        "rev": "0c823817b964752a30ebad07b13c019df3611359",
+        "type": "github"
+      },
+      "original": {
+        "owner": "websh-org",
+        "repo": "app-textarea",
+        "type": "github"
       }
     },
     "webshell-sandbox": {
