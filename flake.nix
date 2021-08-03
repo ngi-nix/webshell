@@ -91,11 +91,11 @@
 
         app-ace = buildWebShellApp {
           inherit final prev napalm version;
-          pname = "app-example-image";
+          pname = "app-ace";
 
           src = webshell-app-ace;
           packageLock = ./package-locks/app-ace.json;
-          npmCommands = [ "npm install" "npm run build" ];
+          npmCommands = [ "npm install --ignore-scripts --loglevel verbose" "npm run build" ];
           additionalBuildCommand = "";
         };
 
