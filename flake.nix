@@ -11,14 +11,8 @@
     flake = false;
   };
 
-  inputs.webshell-webapp = {
-    url = "github:websh-org/web-shell-app";
-    flake = false;
-  };
-
-  outputs = { self, nixpkgs, webshell-sandbox, webshell-webapp, napalm }:
+  outputs = { self, nixpkgs, webshell-sandbox, napalm }:
     let
-      # Generate a user-friendly version numer.
       version = "0.2.1";
 
       # System types to support.
@@ -49,7 +43,6 @@
           sandbox-data =
             (napalm.overlay final prev).napalm.buildPackage webshell-sandbox {
               npmCommands = [ "npm install --ignore-scripts" "npm run build" ];
-              # buildInputs = with final; [ python nodePackages.node-gyp ];
             };
         in with final;
         stdenv.mkDerivation {
@@ -61,8 +54,7 @@
           buildInputs = [ nodePackages.parcel-bundler ];
 
           buildPhase = ''
-            cd _napalm-install
-            cd src
+            cd _napalm-install/src
             NODE_ENV=production parcel build index.html --out-dir=../docs --global WebShellSandbox
             cd ..
 
@@ -80,7 +72,7 @@
 
           installPhase = ''
             mkdir -p $out
-            cp -r ./* $out
+            cp -rd docs bin $out
           '';
         };
       };

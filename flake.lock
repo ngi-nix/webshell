@@ -51,8 +51,7 @@
       "inputs": {
         "napalm": "napalm",
         "nixpkgs": "nixpkgs_2",
-        "webshell-sandbox": "webshell-sandbox",
-        "webshell-webapp": "webshell-webapp"
+        "webshell-sandbox": "webshell-sandbox"
       }
     },
     "webshell-sandbox": {
@@ -68,22 +67,6 @@
       "original": {
         "owner": "websh-org",
         "repo": "sandbox",
-        "type": "github"
-      }
-    },
-    "webshell-webapp": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1583963772,
-        "narHash": "sha256-gVgoNWNx/bEC+EEZtIlZyGqBseLgB//RqrwuUPNa34s=",
-        "owner": "websh-org",
-        "repo": "web-shell-app",
-        "rev": "52a0e7bf243bf88e018f894ad38efe69294d2218",
-        "type": "github"
-      },
-      "original": {
-        "owner": "websh-org",
-        "repo": "web-shell-app",
         "type": "github"
       }
     }
