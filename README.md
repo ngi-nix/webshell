@@ -38,5 +38,5 @@ Working packages:
 - [x] App - jsoneditor
 - [x] App - quill
 - [x] App - textarea
-- [ ] App - ace
+- [x] App - ace
 
