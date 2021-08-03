@@ -51,12 +51,6 @@
           overlays = [ self.overlay ];
         });
 
-      # Custom sandbox run script app
-      sandboxApp = self: system: {
-        type = "app";
-        program = "${self.packages.${system}.sandbox}/bin/run.sh";
-      };
-
       buildWebShellApp = import ./buildWebShellApp.nix;
     in {
       # A Nixpkgs overlay.
@@ -66,6 +60,11 @@
           pname = "sandbox";
 
           src = webshell-sandbox;
+
+          npmCommands = [
+            "npm install --ignore-scripts --loglevel verbose"
+            "npm run build"
+          ];
         };
 
         app-textarea = buildWebShellApp {
@@ -95,8 +94,6 @@
 
           src = webshell-app-ace;
           packageLock = ./package-locks/app-ace.json;
-          npmCommands = [ "npm install --ignore-scripts --loglevel verbose" "npm run build" ];
-          additionalBuildCommand = "";
         };
 
         app-jsoneditor = buildWebShellApp {
@@ -105,8 +102,6 @@
 
           src = webshell-app-jsoneditor;
           packageLock = ./package-locks/app-jsoneditor.json;
-          npmCommands = [ "npm install" "npm run build" ];
-          #additionalBuildCommand = "";
         };
 
         app-quill = buildWebShellApp {
@@ -115,30 +110,19 @@
 
           src = webshell-app-quill;
           packageLock = ./package-locks/app-quill.json;
-          npmCommands = [ "npm install" "npm run build" ];
-          #additionalBuildCommand = "";
         };
       };
 
       # Provide some binary packages for selected system types.
       packages = forAllSystems (system: {
         inherit (nixpkgsFor.${system})
-          sandbox app-textarea app-example-image app-ace app-jsoneditor app-quill;
+          sandbox app-textarea app-example-image app-ace app-jsoneditor
+          app-quill;
       });
 
       # The default package for 'nix build'. This makes sense if the
       # flake provides only one package or there is a clear "main"
       # package.
       defaultPackage = forAllSystems (system: self.packages.${system}.sandbox);
-
-      apps = forAllSystems (system: {
-        sandbox = sandboxApp self system;
-        app-textarea = {
-          type = "app";
-          program = "${self.packages.${system}.app-textarea}/bin/run.sh";
-        };
-      });
-
-      defaultApp = forAllSystems (system: (sandboxApp self system));
     };
 }

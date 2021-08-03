@@ -1,8 +1,13 @@
+# Builds app in a typical "Web Shell" way.
+# Resulting derivation contains of 3 folders
+# docs - For compatibility with github pages, mainly for deployment
+# <Name of the app> - For public urls as in parcel, needed for testing with python web server
+# bin - Contains script with the name of the program, that starts server that hosts desired package
 {
   final, prev, napalm, src, pname, version,
   additionalBuildCommand ? "cd src; NODE_ENV=production parcel build index.html --public-url=/${pname}/ --out-dir=../docs; cd ..",
   packageLock ? null,
-  npmCommands ? [ "npm install --ignore-scripts" "npm run build" ]
+  npmCommands ? [ "npm install --loglevel verbose" "npm run build" ]
 }:
 let
   app-data = (napalm.overlay final prev).napalm.buildPackage src ({
@@ -25,12 +30,12 @@ final.stdenv.mkDerivation {
     # It uses simple python server, which behaves similary
     # to the github pages, which are used in production
     mkdir bin
-    cat > bin/run.sh << EOL
+    cat > bin/${pname} << EOL
     #!/bin/sh
     ${final.python3}/bin/python3 -m http.server --directory \\
     EOL
-    echo $out >> bin/run.sh
-    chmod +x bin/run.sh
+    echo $out >> bin/${pname}
+    chmod +x bin/${pname}
   '';
 
   installPhase = ''
