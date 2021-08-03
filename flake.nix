@@ -34,6 +34,12 @@
           inherit system;
           overlays = [ self.overlay ];
         });
+
+      # Custom sandbox run script app
+      sandboxApp = self: system: {
+            type = "app";
+            program = "${self.packages.${system}.sandbox}/bin/run.sh";
+      };
     in {
       overlays = [ napalm.overlay ];
       
@@ -43,7 +49,7 @@
           sandbox-data =
             (napalm.overlay final prev).napalm.buildPackage webshell-sandbox {
               npmCommands = [ "npm install --ignore-scripts" "npm run build" ];
-              buildInputs = with final; [ python nodePackages.node-gyp ];
+              # buildInputs = with final; [ python nodePackages.node-gyp ];
             };
         in with final;
         stdenv.mkDerivation {
@@ -59,32 +65,17 @@
             cd src
             NODE_ENV=production parcel build index.html --out-dir=../docs --global WebShellSandbox
             cd ..
-          '';
 
-          installPhase = ''
-            mkdir -p $out
-            cp -r ./* $out
-          '';
-        };
-
-        webapp = let
-          webapp-data =
-            (napalm.overlay final prev).buildPackage webshell-webapp {
-              npmCommands = [ "npm install" "npm run build" ];
-              buildInputs = with final; [ python nodePackages.node-gyp ];
-            };
-        in with final;
-        stdenv.mkDerivation {
-          inherit version;
-          pname = "webapp";
-
-          src = webapp-data;
-
-          buildInputs = [ nodePackages.parcel-bundler ];
-
-          buildPhase = ''
-            cd _napalm-install
-            NODE_ENV=production parcel build index.html --out-dir=dist --global WebShellWebApp
+            # This is my custom script for testing server
+            # 
+            # It uses simple python server, which behaves similary
+            # to the github pages, which are used in production
+            mkdir bin
+            cat > bin/run.sh << EOL
+            #!/bin/sh
+            ${final.python3}/bin/python3 -m http.server --directory ../docs
+            EOL
+            chmod +x bin/run.sh
           '';
 
           installPhase = ''
@@ -96,12 +87,19 @@
 
       # Provide some binary packages for selected system types.
       packages =
-        forAllSystems (system: { inherit (nixpkgsFor.${system}) sandbox webapp; });
+        forAllSystems (system: { inherit (nixpkgsFor.${system}) sandbox; });
 
       # The default package for 'nix build'. This makes sense if the
       # flake provides only one package or there is a clear "main"
       # package.
       defaultPackage =
         forAllSystems (system: self.packages.${system}.sandbox);
+
+      apps = forAllSystems (system:
+        {
+          sandbox = sandboxApp self system;
+        });
+
+      defaultApp = forAllSystems (system: (sandboxApp self system));
     };
 }

@@ -7,14 +7,16 @@ WebShell is an open-source online desktop environment.
 
 ## Status
 
-Currently it is possible to create basic sandbox app via:
-
+Currently only main (sandbox) app is packaged:
 ```bash
 nix build .
+# or
+nix build .#sandbox
 ```
 
-Then you can test it out via some basic web server (sanbox is being build into docs folder), for example:
-
-```
-cd result && python3 -m http.server --directory ./docs
+It can also be runned (using python http server) via:
+```bash
+nix run .
+# or
+nix run .#sandbox
 ```
