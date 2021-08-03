@@ -51,8 +51,76 @@
       "inputs": {
         "napalm": "napalm",
         "nixpkgs": "nixpkgs_2",
+        "webshell-app-ace": "webshell-app-ace",
+        "webshell-app-example-image": "webshell-app-example-image",
+        "webshell-app-jsoneditor": "webshell-app-jsoneditor",
+        "webshell-app-quill": "webshell-app-quill",
         "webshell-app-textarea": "webshell-app-textarea",
         "webshell-sandbox": "webshell-sandbox"
+      }
+    },
+    "webshell-app-ace": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1572560228,
+        "narHash": "sha256-07lgJdePOMo+QLPLx69gmn3uwoJwUibAw9GWNDbEeQY=",
+        "owner": "websh-org",
+        "repo": "app-ace",
+        "rev": "33b58a11dd2a95481d1b4c096083f77c2c5115fc",
+        "type": "github"
+      },
+      "original": {
+        "owner": "websh-org",
+        "repo": "app-ace",
+        "type": "github"
+      }
+    },
+    "webshell-app-example-image": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1572327336,
+        "narHash": "sha256-3UNWjNjIJ5L3IZQIg8i9kMtE1ACJ6HDbjTueyhbQN30=",
+        "owner": "websh-org",
+        "repo": "app-example-image",
+        "rev": "ea64e5c1865a32d6172681db647066c22c55cd86",
+        "type": "github"
+      },
+      "original": {
+        "owner": "websh-org",
+        "repo": "app-example-image",
+        "type": "github"
+      }
+    },
+    "webshell-app-jsoneditor": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1572315253,
+        "narHash": "sha256-Xi9OTQ/PRh3nLnaJAmmS+KsyLGBg6Cfzhxb4rKbbOD8=",
+        "owner": "websh-org",
+        "repo": "app-jsoneditor",
+        "rev": "54ce697215fd0592dadd6b8128d3f908499cbe2e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "websh-org",
+        "repo": "app-jsoneditor",
+        "type": "github"
+      }
+    },
+    "webshell-app-quill": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1572313748,
+        "narHash": "sha256-s5FxuMb47W+VgcCXNrirqICj+LvLACPq7wBj6+L/hak=",
+        "owner": "websh-org",
+        "repo": "app-quill",
+        "rev": "402f85e56b80ed3d24ae138e77e1a97b490d8dfe",
+        "type": "github"
+      },
+      "original": {
+        "owner": "websh-org",
+        "repo": "app-quill",
+        "type": "github"
       }
     },
     "webshell-app-textarea": {

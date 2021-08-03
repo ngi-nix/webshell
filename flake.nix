@@ -10,13 +10,30 @@
     url = "github:websh-org/sandbox";
     flake = false;
   };
-
   inputs.webshell-app-textarea = {
     url = "github:websh-org/app-textarea";
     flake = false;
   };
+  inputs.webshell-app-example-image = {
+    url = "github:websh-org/app-example-image";
+    flake = false;
+  };
+  inputs.webshell-app-ace = {
+    url = "github:websh-org/app-ace";
+    flake = false;
+  };
+  inputs.webshell-app-jsoneditor = {
+    url = "github:websh-org/app-jsoneditor";
+    flake = false;
+  };
+  inputs.webshell-app-quill = {
+    url = "github:websh-org/app-quill";
+    flake = false;
+  };
 
-  outputs = { self, nixpkgs, webshell-sandbox, webshell-app-textarea, napalm }:
+  outputs = { self, nixpkgs, webshell-sandbox, webshell-app-textarea
+    , webshell-app-example-image, webshell-app-ace, webshell-app-jsoneditor
+    , webshell-app-quill, napalm }:
     let
       version = "0.2.1";
 
@@ -36,112 +53,91 @@
 
       # Custom sandbox run script app
       sandboxApp = self: system: {
-            type = "app";
-            program = "${self.packages.${system}.sandbox}/bin/run.sh";
+        type = "app";
+        program = "${self.packages.${system}.sandbox}/bin/run.sh";
       };
+
+      buildWebShellApp = import ./buildWebShellApp.nix;
     in {
-      overlays = [ napalm.overlay ];
-      
       # A Nixpkgs overlay.
       overlay = final: prev: rec {
-        sandbox = let
-          sandbox-data =
-            (napalm.overlay final prev).napalm.buildPackage webshell-sandbox {
-              npmCommands = [ "npm install --ignore-scripts" "npm run build" ];
-            };
-        in with final;
-        stdenv.mkDerivation {
-          inherit version;
+        sandbox = buildWebShellApp {
+          inherit final prev napalm version;
           pname = "sandbox";
 
-          src = sandbox-data;
-
-          buildInputs = [ nodePackages.parcel-bundler ];
-
-          buildPhase = ''
-            cd _napalm-install
-
-            cd src; NODE_ENV=production parcel build index.html --out-dir=../docs; cd ..
-            # This is my custom script for testing server
-            # 
-            # It uses simple python server, which behaves similary
-            # to the github pages, which are used in production
-            mkdir bin
-            cat > bin/run.sh << EOL
-            #!/bin/sh
-            ${final.python3}/bin/python3 -m http.server --directory \\
-            EOL
-            echo $out >> bin/run.sh
-            chmod +x bin/run.sh
-          '';
-
-          installPhase = ''
-            mkdir -p $out/sandbox
-            cp -rd docs bin $out
-            cp -rd docs/* $out/sandbox
-          '';
+          src = webshell-sandbox;
         };
 
-        app-textarea = let
-          textarea-data =
-            (napalm.overlay final prev).napalm.buildPackage webshell-app-textarea {
-              npmCommands = [ "npm install --ignore-scripts" "npm run build" ];
-              buildInputs = with final; [ nodePackages.parcel-bundler ];
-              packageLock = ./package-lock.json;
-            };
-        in with final;
-        stdenv.mkDerivation {
-          inherit version;
+        app-textarea = buildWebShellApp {
+          inherit final prev napalm version;
           pname = "app-textarea";
 
-          src = textarea-data;
+          src = webshell-app-textarea;
+          packageLock = ./package-locks/app-textarea.json;
+        };
 
-          buildInputs = [ nodePackages.parcel-bundler ];
+        app-example-image = buildWebShellApp {
+          inherit final prev napalm version;
+          pname = "app-example-image";
 
-          buildPhase = ''
-            cd _napalm-install
-
-            cd src; NODE_ENV=production parcel build index.html --public-url=/app-textarea --out-dir=../docs; cd ..
-
-            # This is my custom script for testing server
-            # 
-            # It uses simple python server, which behaves similary
-            # to the github pages, which are used in production
-            mkdir bin
-            cat > bin/run.sh << EOL
-            #!/bin/sh
-            ${final.python3}/bin/python3 -m http.server --directory \\
-            EOL
-            echo $out >> bin/run.sh
-            chmod +x bin/run.sh
+          src = webshell-app-example-image;
+          packageLock = ./package-locks/app-example-image.json;
+          additionalBuildCommand = ''
+            mkdir docs
+            cp ./*.html ./*.css ./*.js ./*.svg ./*.json docs
           '';
+          npmCommands = [ "npm install" ];
+        };
 
-          installPhase = ''
-            mkdir -p $out/app-textarea
-            cp -rd docs bin $out
-            cp -rd docs/* $out/app-textarea
-          '';
+        app-ace = buildWebShellApp {
+          inherit final prev napalm version;
+          pname = "app-example-image";
+
+          src = webshell-app-ace;
+          packageLock = ./package-locks/app-ace.json;
+          npmCommands = [ "npm install" "npm run build" ];
+          additionalBuildCommand = "";
+        };
+
+        app-jsoneditor = buildWebShellApp {
+          inherit final prev napalm version;
+          pname = "app-jsoneditor";
+
+          src = webshell-app-jsoneditor;
+          packageLock = ./package-locks/app-jsoneditor.json;
+          npmCommands = [ "npm install" "npm run build" ];
+          #additionalBuildCommand = "";
+        };
+
+        app-quill = buildWebShellApp {
+          inherit final prev napalm version;
+          pname = "app-quill";
+
+          src = webshell-app-quill;
+          packageLock = ./package-locks/app-quill.json;
+          npmCommands = [ "npm install" "npm run build" ];
+          #additionalBuildCommand = "";
         };
       };
 
       # Provide some binary packages for selected system types.
-      packages =
-        forAllSystems (system: { inherit (nixpkgsFor.${system}) sandbox app-textarea; });
+      packages = forAllSystems (system: {
+        inherit (nixpkgsFor.${system})
+          sandbox app-textarea app-example-image app-ace app-jsoneditor app-quill;
+      });
 
       # The default package for 'nix build'. This makes sense if the
       # flake provides only one package or there is a clear "main"
       # package.
-      defaultPackage =
-        forAllSystems (system: self.packages.${system}.sandbox);
+      defaultPackage = forAllSystems (system: self.packages.${system}.sandbox);
 
-      apps = forAllSystems (system:
-        {
-          sandbox = sandboxApp self system;
-          app-textarea = {
-            type = "app";
-            program = "${self.packages.${system}.app-textarea}/bin/run.sh";
-          };
-        });
+      apps = forAllSystems (system: {
+        sandbox = sandboxApp self system;
+        app-textarea = {
+          type = "app";
+          program = "${self.packages.${system}.app-textarea}/bin/run.sh";
+        };
+      });
 
       defaultApp = forAllSystems (system: (sandboxApp self system));
     };

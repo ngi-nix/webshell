@@ -1,6 +1,6 @@
 {
-    "name": "@websh/app-textarea",
-    "version": "0.2.1",
+  "name": "@websh/app-textarea",
+  "version": "0.2.1",
   "requires": true,
   "lockfileVersion": 1,
   "dependencies": {
