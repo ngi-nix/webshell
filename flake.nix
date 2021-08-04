@@ -3,7 +3,7 @@
 
   # Nixpkgs / NixOS version to use.
   inputs.nixpkgs.url = "nixpkgs/nixos-21.05";
-  inputs.napalm.url = "github:nix-community/napalm";
+  inputs.napalm.url = "github:ngi-nix/napalm";
 
   # Web shell repos:
   inputs.webshell-sandbox = {
@@ -73,9 +73,11 @@
           pname = "app-textarea";
 
           src = webshell-app-textarea;
-          packageLock = ./package-locks/app-textarea.json;
         };
 
+        # This is very specific case, as this program
+        # is a vanilla javascript app and does not
+        # even have lock file
         app-example-image = buildWebShellApp {
           inherit final prev napalm version;
           pname = "app-example-image";
@@ -102,7 +104,6 @@
           pname = "app-jsoneditor";
 
           src = webshell-app-jsoneditor;
-          packageLock = ./package-locks/app-jsoneditor.json;
         };
 
         app-quill = buildWebShellApp {
@@ -110,7 +111,6 @@
           pname = "app-quill";
 
           src = webshell-app-quill;
-          packageLock = ./package-locks/app-quill.json;
         };
 
         webshell-full = buildSandboxWithApps {

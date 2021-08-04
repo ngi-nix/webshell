@@ -12,7 +12,8 @@
 }:
 let
   app-data = (napalm.overlay final prev).napalm.buildPackage src ({
-    inherit npmCommands;
+    inherit npmCommands version;
+    name = pname;
     buildInputs = with final; [ nodePackages.parcel-bundler ];
   } // (if !isNull packageLock then { inherit packageLock; } else { }));
 in final.stdenv.mkDerivation {
