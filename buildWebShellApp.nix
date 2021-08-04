@@ -3,19 +3,16 @@
 # docs - For compatibility with github pages, mainly for deployment
 # <Name of the app> - For public urls as in parcel, needed for testing with python web server
 # bin - Contains script with the name of the program, that starts server that hosts desired package
-{
-  final, prev, napalm, src, pname, version,
-  additionalBuildCommand ? "cd src; NODE_ENV=production parcel build index.html --public-url=/${pname}/ --out-dir=../docs; cd ..",
-  packageLock ? null,
-  npmCommands ? [ "npm install --loglevel verbose" "npm run build" ]
-}:
+{ final, prev, napalm, src, pname, version, additionalBuildCommand ?
+  "cd src; NODE_ENV=production parcel build index.html --public-url=/${pname}/ --out-dir=../docs; cd .."
+, packageLock ? null
+, npmCommands ? [ "npm install --loglevel verbose" "npm run build" ] }:
 let
   app-data = (napalm.overlay final prev).napalm.buildPackage src ({
     inherit npmCommands;
     buildInputs = with final; [ nodePackages.parcel-bundler ];
-  } // (if ! isNull packageLock then { inherit packageLock; } else { }));
-in
-final.stdenv.mkDerivation {
+  } // (if !isNull packageLock then { inherit packageLock; } else { }));
+in final.stdenv.mkDerivation {
   inherit version pname;
   src = app-data;
 

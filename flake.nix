@@ -52,6 +52,7 @@
         });
 
       buildWebShellApp = import ./buildWebShellApp.nix;
+      buildSandboxWithApps = import ./buildSanboxWithApps.nix;
     in {
       # A Nixpkgs overlay.
       overlay = final: prev: rec {
@@ -111,18 +112,36 @@
           src = webshell-app-quill;
           packageLock = ./package-locks/app-quill.json;
         };
+
+        webshell-full = buildSandboxWithApps {
+          inherit final prev version;
+          pname = "webshell-full";
+
+          inherit sandbox;
+          apps = [
+            "${app-textarea}/app-textarea"
+            "${app-quill}/app-quill"
+            "${app-jsoneditor}/app-jsoneditor"
+            "${app-example-image}/app-example-image"
+            "${app-ace}/app-ace"
+          ];
+        };
       };
 
       # Provide some binary packages for selected system types.
       packages = forAllSystems (system: {
         inherit (nixpkgsFor.${system})
           sandbox app-textarea app-example-image app-ace app-jsoneditor
-          app-quill;
+          app-quill webshell-full;
       });
 
       # The default package for 'nix build'. This makes sense if the
       # flake provides only one package or there is a clear "main"
       # package.
-      defaultPackage = forAllSystems (system: self.packages.${system}.sandbox);
+      defaultPackage =
+        forAllSystems (system: self.packages.${system}.webshell-full);
+
+      # Exported functions for building similar flakes
+      lib = { inherit buildSandboxWithApps buildWebShellApp; };
     };
 }

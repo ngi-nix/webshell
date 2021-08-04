@@ -16,14 +16,14 @@ nix flake show
 In order to build package use:
 ```bash
 nix build .#<Some package>
-# or to build main app (sandbox):
+# or to build main app (Full Webshell suite):
 nix build .
 ```
 
 In order to run some app via simple python server, use:
 ```bash
 nix run .#<Some package>
-# or to build main app (sandbox):
+# or to run main app (Full Webshell suite):
 nix run .
 ```
 
@@ -39,4 +39,5 @@ Working packages:
 - [x] App - quill
 - [x] App - textarea
 - [x] App - ace
+- [x] Webshell - Full default webshell suite
 
