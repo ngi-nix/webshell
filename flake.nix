@@ -38,7 +38,7 @@
       version = "0.2.1";
 
       # System types to support.
-      supportedSystems = [ "x86_64-linux" ];
+      supportedSystems = [ "aarch64-linux" "i686-linux" "x86_64-darwin" "x86_64-linux" ];
 
       # Helper function to generate an attrset '{ x86_64-linux = f "x86_64-linux"; ... }'.
       forAllSystems = f:
