@@ -7,6 +7,8 @@ WebShell is an open-source online desktop environment.
 
 This repo contains flake that allow user to easily build default WebShell apps as well as main sandbox.
 
+*This repo strongly relies on [Napalm project](https://github.com/nix-community/napalm), whenever I refer to `napalm`, I mean this project*
+
 ## Some tips how to use the flake
 
 In order to view avaible packages, use:
@@ -39,15 +41,17 @@ This flake provides small library containing builders/functions, that help with 
 
 `buildWebShellApp`:
 ```nix
-# Builds app in a typical "Web Shell" way.
+# Builds app in a typical "Web Shell" way with help of napalm package.
 # Resulting derivation contains 3 folders
 # docs - For compatibility with github pages, mainly for deployment
 # <Name of the app> - For public urls as in parcel, needed for testing with python web server
 # bin - Contains script with the name of the program, that starts server that hosts desired package
-{ final, prev, napalm, src, pname, version, additionalBuildCommand ?
-  "cd src; NODE_ENV=production parcel build index.html --public-url=/${pname}/ --out-dir=../docs; cd .."
-, packageLock ? null
-, npmCommands ? [ "npm install --loglevel verbose" "npm run build" ] }:
+{ final, prev, napalm, # These should be inherited from overlay arguments and flake inputs
+  src, pname, version, # These are common derivation thing
+  additionalBuildCommand ? "cd src; NODE_ENV=production parcel build index.html --public-url=/${pname}/ --out-dir=../docs; cd .." # This is build command that will be applied AFTER installing all npm related stuff that napalm does, usually you want to put here somthing from your package.json. In case of default WebShell apps it uses parcel to build everything into docs/ folder, you may want to modify this depending on your needs.
+, packageLock ? null # This can be a path to custom package-lock.json file, if you can't/don't want to modify original's repo lock.
+, npmCommands ? [ "npm install --loglevel verbose" "npm run build" ] # These are the commands that are executed by napalm, you usually want to specify this argument
+}:
 ```
 
 `buildSanboxWithApps`:
