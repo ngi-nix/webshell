@@ -1,5 +1,6 @@
+
 # Builds app in a typical "Web Shell" way.
-# Resulting derivation contains of 3 folders
+# Resulting derivation contains 3 folders
 # docs - For compatibility with github pages, mainly for deployment
 # <Name of the app> - For public urls as in parcel, needed for testing with python web server
 # bin - Contains script with the name of the program, that starts server that hosts desired package
