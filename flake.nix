@@ -146,5 +146,11 @@
       # package.
       defaultPackage =
         forAllSystems (system: self.packages.${system}.webshell-full);
+
+      checks = forAllSystems (system: {
+        inherit (nixpkgsFor.${system})
+          sandbox app-textarea app-example-image app-ace app-jsoneditor
+          app-quill webshell-full;
+      });
     };
 }
