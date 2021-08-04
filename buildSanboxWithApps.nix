@@ -2,7 +2,8 @@
 # specified apps and creates simple script to run it in bin folder.
 #
 # apps - list of paths to the apps, for example: [ "${app-textarea}/app-textarea" <other apps> ]
-{ final, prev, pname, version, sandbox, apps ? [ ] }:
+final:
+{ pname, version, sandbox, apps ? [ ] }:
 let
   lib = final.lib;
   listOfLocations = lib.lists.foldl (list: app: "${list} ${app}") "" apps;

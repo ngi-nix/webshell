@@ -33,34 +33,45 @@ nix run .
 
 It is worth to mention that each app has it's own url, so for example to acces `sandbox` app via localhost, you need to open localhost:8000/sandbox.
 
-## Lib
+## Using provided builders
 
-This flake provides small library containing builders/functions, that help with deploying your own Web Shell apps. These functions are specified in the `lib` attribute of the flake. Both of them are intended to use in flake overlays. These functions with some comments are defined in the corresponding `.nix` files, but for convinience I have copied their "headers" below:
+Builders used in this flake are provided in the flake overlay. In order to use them when working on your own flake with overlay you can do something like:
 
-**WARNING: These builders are not final and may change in the future**
+```nix
+# Assuming `webshell-flake` is this flake
 
-`buildWebShellApp`:
+buildWebShellApp = (webshell-flake.overlay final prev).buildWebShellApp;
+# and
+buildSandboxWithApps = (webshell-flake.overlay final prev).buildSandboxWithApps ;
+```
+
+Or just use overlay of this flake.
+
+Below there are parts of commented code extracted from corresponding files for you convinience so that you do not need to look into source code (although it is recommened):
+
+*final and buildNapalmPackage arguments are not required, as they are automatically provided in the overlay, they are ommited in README*
+
+`buildWebShellApp `
 ```nix
 # Builds app in a typical "Web Shell" way with help of napalm package.
 # Resulting derivation contains 3 folders
 # docs - For compatibility with github pages, mainly for deployment
 # <Name of the app> - For public urls as in parcel, needed for testing with python web server
 # bin - Contains script with the name of the program, that starts server that hosts desired package
-{ final, prev, napalm, # These should be inherited from overlay arguments and flake inputs
-  src, pname, version, # These are common derivation thing
+{ src, pname, version, # These are common derivation thing
   additionalBuildCommand ? "cd src; NODE_ENV=production parcel build index.html --public-url=/${pname}/ --out-dir=../docs; cd .." # This is build command that will be applied AFTER installing all npm related stuff that napalm does, usually you want to put here somthing from your package.json. In case of default WebShell apps it uses parcel to build everything into docs/ folder, you may want to modify this depending on your needs.
 , packageLock ? null # This can be a path to custom package-lock.json file, if you can't/don't want to modify original's repo lock.
 , npmCommands ? [ "npm install --loglevel verbose" "npm run build" ] # These are the commands that are executed by napalm, you usually want to specify this argument
 }:
 ```
 
-`buildSanboxWithApps`:
+`buildSandboxWithApps`
 ```nix
 # This builds derivation, that contains sandbox with multiple
 # specified apps and creates simple script to run it in bin folder.
 #
 # apps - list of paths to the apps, for example: [ "${app-textarea}/app-textarea" <other apps> ]
-{ final, prev, pname, version, sandbox, apps ? [ ] }:
+{ pname, version, sandbox, apps ? [ ] }:
 ```
 
 ## Packages Status

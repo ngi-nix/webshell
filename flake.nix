@@ -56,8 +56,10 @@
     in {
       # A Nixpkgs overlay.
       overlay = final: prev: rec {
-        sandbox = buildWebShellApp {
-          inherit final prev napalm version;
+        buildNapalmPackage = (napalm.overlay final prev).napalm.buildPackage;
+        
+        sandbox = buildWebShellApp final buildNapalmPackage {
+          inherit version;
           pname = "sandbox";
 
           src = webshell-sandbox;
@@ -68,8 +70,8 @@
           ];
         };
 
-        app-textarea = buildWebShellApp {
-          inherit final prev napalm version;
+        app-textarea = buildWebShellApp final buildNapalmPackage {
+          inherit version;
           pname = "app-textarea";
 
           src = webshell-app-textarea;
@@ -78,8 +80,8 @@
         # This is very specific case, as this program
         # is a vanilla javascript app and does not
         # even have lock file
-        app-example-image = buildWebShellApp {
-          inherit final prev napalm version;
+        app-example-image = buildWebShellApp final buildNapalmPackage {
+          inherit version;
           pname = "app-example-image";
 
           src = webshell-app-example-image;
@@ -91,30 +93,30 @@
           npmCommands = [ "npm install" ];
         };
 
-        app-ace = buildWebShellApp {
-          inherit final prev napalm version;
+        app-ace = buildWebShellApp final buildNapalmPackage {
+          inherit version;
           pname = "app-ace";
 
           src = webshell-app-ace;
           packageLock = ./package-locks/app-ace.json;
         };
 
-        app-jsoneditor = buildWebShellApp {
-          inherit final prev napalm version;
+        app-jsoneditor = buildWebShellApp final buildNapalmPackage {
+          inherit version;
           pname = "app-jsoneditor";
 
           src = webshell-app-jsoneditor;
         };
 
-        app-quill = buildWebShellApp {
-          inherit final prev napalm version;
+        app-quill = buildWebShellApp final buildNapalmPackage {
+          inherit version;
           pname = "app-quill";
 
           src = webshell-app-quill;
         };
 
-        webshell-full = buildSandboxWithApps {
-          inherit final prev version;
+        webshell-full = buildSandboxWithApps final {
+          inherit version;
           pname = "webshell-full";
 
           inherit sandbox;
@@ -126,6 +128,10 @@
             "${app-ace}/app-ace"
           ];
         };
+      } // {
+        # Export useful WebShell packaging functions in the overlay
+        buildWebShellApp = buildWebShellApp final ((napalm.overlay final prev).napalm.buildPackage);
+        buildSandboxWithApps = buildSandboxWithApps final;
       };
 
       # Provide some binary packages for selected system types.
@@ -140,8 +146,5 @@
       # package.
       defaultPackage =
         forAllSystems (system: self.packages.${system}.webshell-full);
-
-      # Exported functions for building similar flakes
-      lib = { inherit buildSandboxWithApps buildWebShellApp; };
     };
 }
