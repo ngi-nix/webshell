@@ -38,14 +38,30 @@ It is worth to mention that each app has it's own url, so for example to acces `
 Builders used in this flake are provided in the flake overlay. In order to use them when working on your own flake with overlay you can do something like:
 
 ```nix
-# Assuming `webshell-flake` is this flake
+{
+  description = "An example of how to use Webshell";
 
-buildWebShellApp = (webshell-flake.overlay final prev).buildWebShellApp;
-# and
-buildSandboxWithApps = (webshell-flake.overlay final prev).buildSandboxWithApps ;
+  # Add Webshell as your input flake
+  inputs.webshell.url = "github:ngi-nix/webshell";
+
+  outputs = { self, webshell }: {
+      # A Nixpkgs overlay.
+      overlay = final: prev:
+        let
+          # Load in builders
+          buildWebShellApp = (webshell.overlay final prev).buildWebShellApp;
+          buildSandboxWithApps =
+            (webshell.overlay final prev).buildSandboxWithApps;
+        in {
+          # Here you can use provided builders here
+        };
+
+      # Add rest of the flake
+    };
+}
 ```
 
-Or just use overlay of this flake.
+### Kind of documentation of builders
 
 Below there are parts of commented code extracted from corresponding files for you convinience so that you do not need to look into source code (although it is recommened):
 
