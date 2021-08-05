@@ -38,7 +38,8 @@
       version = "0.2.1";
 
       # System types to support.
-      supportedSystems = [ "aarch64-linux" "i686-linux" "x86_64-darwin" "x86_64-linux" ];
+      # supportedSystems = [ "x86_64-linux" "x86_64-darwin" "aarch64-linux" "aarch64-darwin" ];
+      supportedSystems = [ "x86_64-linux" ];
 
       # Helper function to generate an attrset '{ x86_64-linux = f "x86_64-linux"; ... }'.
       forAllSystems = f:
@@ -55,9 +56,10 @@
       buildSandboxWithApps = import ./buildSanboxWithApps.nix;
     in {
       # A Nixpkgs overlay.
-      overlay = final: prev: rec {
-        buildNapalmPackage = (napalm.overlay final prev).napalm.buildPackage;
-        
+      overlay = final: prev:
+        let
+            buildNapalmPackage = (napalm.overlay final prev).napalm.buildPackage;
+        in rec {
         sandbox = buildWebShellApp final buildNapalmPackage {
           inherit version;
           pname = "sandbox";
@@ -147,10 +149,11 @@
       defaultPackage =
         forAllSystems (system: self.packages.${system}.webshell-full);
 
-      checks = forAllSystems (system: {
-        inherit (nixpkgsFor.${system})
-          sandbox app-textarea app-example-image app-ace app-jsoneditor
-          app-quill webshell-full;
-      });
+      hydraJobs = self.packages;
+
+      defaultTemplate = {
+        path = ./template;
+        description = "Template for making custom Webshell apps and suites";
+      };
     };
 }

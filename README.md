@@ -61,6 +61,8 @@ Builders used in this flake are provided in the flake overlay. In order to use t
 }
 ```
 
+**There is also default flake template, you can use it via: `nix flake init -t "github:ngi-nix/webshell"`**
+
 ### Kind of documentation of builders
 
 Below there are parts of commented code extracted from corresponding files for you convinience so that you do not need to look into source code (although it is recommened):
