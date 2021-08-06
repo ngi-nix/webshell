@@ -5,11 +5,11 @@
         "nixpkgs": "nixpkgs"
       },
       "locked": {
-        "lastModified": 1628239486,
-        "narHash": "sha256-ulTBZ9dugs11+Gx9IWAUFHGgcG1jDJsf/XLDjYbl1d8=",
+        "lastModified": 1628263438,
+        "narHash": "sha256-XItcB4QegIDGetDjUMqgjku5rlS3FR794/5dLT2W/Sc=",
         "owner": "ngi-nix",
         "repo": "napalm",
-        "rev": "ebba85c1bd44fe10f08e9e2a68f98401f326dcde",
+        "rev": "e49d5f5cfa0ddfe3a1a332883215346658c1d8b2",
         "type": "github"
       },
       "original": {
