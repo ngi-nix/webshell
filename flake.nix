@@ -38,8 +38,8 @@
       version = "0.2.1";
 
       # System types to support.
-      # supportedSystems = [ "x86_64-linux" "x86_64-darwin" "aarch64-linux" "aarch64-darwin" ];
-      supportedSystems = [ "x86_64-linux" ];
+      supportedSystems =
+        [ "x86_64-linux" "x86_64-darwin" "aarch64-linux" "aarch64-darwin" ];
 
       # Helper function to generate an attrset '{ x86_64-linux = f "x86_64-linux"; ... }'.
       forAllSystems = f:
@@ -58,98 +58,101 @@
       # A Nixpkgs overlay.
       overlay = final: prev:
         let
-            buildNapalmPackage = (napalm.overlay final prev).napalm.buildPackage;
-        in rec {
-        sandbox = buildWebShellApp final buildNapalmPackage {
-          inherit version;
-          pname = "sandbox";
+          # Safer solution than using overlay in this case
+          buildNapalmPackage = (napalm.overlay final prev).napalm.buildPackage;
+        in {
+          webshell = rec {
+            sandbox = buildWebShellApp final buildNapalmPackage {
+              inherit version;
+              pname = "sandbox";
 
-          src = webshell-sandbox;
+              src = webshell-sandbox;
 
-          npmCommands = [
-            "npm install --ignore-scripts --loglevel verbose"
-            "npm run build"
-          ];
+              npmCommands = [
+                "npm install --ignore-scripts --loglevel verbose"
+                "npm run build"
+              ];
+            };
+
+            app-textarea = buildWebShellApp final buildNapalmPackage {
+              inherit version;
+              pname = "app-textarea";
+
+              src = webshell-app-textarea;
+            };
+
+            # This is very specific case, as this program
+            # is a vanilla javascript app and does not
+            # even have lock file
+            app-example-image = buildWebShellApp final buildNapalmPackage {
+              inherit version;
+              pname = "app-example-image";
+
+              src = webshell-app-example-image;
+              packageLock = ./package-locks/app-example-image.json;
+              additionalBuildCommand = ''
+                mkdir docs
+                cp ./*.html ./*.css ./*.js ./*.svg ./*.json docs
+              '';
+              npmCommands = [ "npm install" ];
+            };
+
+            app-ace = buildWebShellApp final buildNapalmPackage {
+              inherit version;
+              pname = "app-ace";
+
+              src = webshell-app-ace;
+              packageLock = ./package-locks/app-ace.json;
+            };
+
+            app-jsoneditor = buildWebShellApp final buildNapalmPackage {
+              inherit version;
+              pname = "app-jsoneditor";
+
+              src = webshell-app-jsoneditor;
+            };
+
+            app-quill = buildWebShellApp final buildNapalmPackage {
+              inherit version;
+              pname = "app-quill";
+
+              src = webshell-app-quill;
+            };
+
+            full = buildSandboxWithApps final {
+              inherit version;
+              pname = "webshell-full";
+
+              inherit sandbox;
+              apps = [
+                "${app-textarea}/app-textarea"
+                "${app-quill}/app-quill"
+                "${app-jsoneditor}/app-jsoneditor"
+                "${app-example-image}/app-example-image"
+                "${app-ace}/app-ace"
+              ];
+            };
+          } // {
+            # Export useful WebShell packaging functions in the overlay
+            buildWebShellApp = buildWebShellApp final
+              ((napalm.overlay final prev).napalm.buildPackage);
+            buildSandboxWithApps = buildSandboxWithApps final;
+          };
         };
-
-        app-textarea = buildWebShellApp final buildNapalmPackage {
-          inherit version;
-          pname = "app-textarea";
-
-          src = webshell-app-textarea;
-        };
-
-        # This is very specific case, as this program
-        # is a vanilla javascript app and does not
-        # even have lock file
-        app-example-image = buildWebShellApp final buildNapalmPackage {
-          inherit version;
-          pname = "app-example-image";
-
-          src = webshell-app-example-image;
-          packageLock = ./package-locks/app-example-image.json;
-          additionalBuildCommand = ''
-            mkdir docs
-            cp ./*.html ./*.css ./*.js ./*.svg ./*.json docs
-          '';
-          npmCommands = [ "npm install" ];
-        };
-
-        app-ace = buildWebShellApp final buildNapalmPackage {
-          inherit version;
-          pname = "app-ace";
-
-          src = webshell-app-ace;
-          packageLock = ./package-locks/app-ace.json;
-        };
-
-        app-jsoneditor = buildWebShellApp final buildNapalmPackage {
-          inherit version;
-          pname = "app-jsoneditor";
-
-          src = webshell-app-jsoneditor;
-        };
-
-        app-quill = buildWebShellApp final buildNapalmPackage {
-          inherit version;
-          pname = "app-quill";
-
-          src = webshell-app-quill;
-        };
-
-        webshell-full = buildSandboxWithApps final {
-          inherit version;
-          pname = "webshell-full";
-
-          inherit sandbox;
-          apps = [
-            "${app-textarea}/app-textarea"
-            "${app-quill}/app-quill"
-            "${app-jsoneditor}/app-jsoneditor"
-            "${app-example-image}/app-example-image"
-            "${app-ace}/app-ace"
-          ];
-        };
-      } // {
-        # Export useful WebShell packaging functions in the overlay
-        buildWebShellApp = buildWebShellApp final ((napalm.overlay final prev).napalm.buildPackage);
-        buildSandboxWithApps = buildSandboxWithApps final;
-      };
 
       # Provide some binary packages for selected system types.
       packages = forAllSystems (system: {
-        inherit (nixpkgsFor.${system})
+        inherit (nixpkgsFor.${system}.webshell)
           sandbox app-textarea app-example-image app-ace app-jsoneditor
-          app-quill webshell-full;
+          app-quill full;
       });
 
       # The default package for 'nix build'. This makes sense if the
       # flake provides only one package or there is a clear "main"
       # package.
-      defaultPackage =
-        forAllSystems (system: self.packages.${system}.webshell-full);
+      defaultPackage = forAllSystems (system: self.packages.${system}.full);
 
-      hydraJobs = self.packages;
+      checks = self.packages;
 
       defaultTemplate = {
         path = ./template;

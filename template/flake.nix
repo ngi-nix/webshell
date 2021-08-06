@@ -27,7 +27,7 @@
       nixpkgsFor = forAllSystems (system:
         import nixpkgs {
           inherit system;
-          overlays = [ self.overlay ];
+          overlays = [ self.overlay webshell.overlay ];
         });
 
     in {
@@ -35,10 +35,9 @@
       overlay = final: prev:
         let
           # Load in builders
-          buildWebShellApp = (webshell.overlay final prev).buildWebShellApp;
-          buildSandboxWithApps =
-            (webshell.overlay final prev).buildSandboxWithApps;
-          sandbox = (webshell.overlay final prev).sandbox;
+          buildWebShellApp = final.webshell.buildWebShellApp;
+          buildSandboxWithApps = final.webshell.buildSandboxWithApps;
+          sandbox = final.webshell.sandbox;
         in rec {
           # Example app
           app-quill = buildWebShellApp {
