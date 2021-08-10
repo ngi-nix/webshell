@@ -44,6 +44,7 @@
             inherit version;
             pname = "app-quill";
 
+            buildInputs = [ final.nodePackages.parcel-bundler ];
             src = webshell-app-quill;
           };
 

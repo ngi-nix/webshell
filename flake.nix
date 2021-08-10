@@ -3,7 +3,8 @@
 
   # Nixpkgs / NixOS version to use.
   inputs.nixpkgs.url = "nixpkgs/nixos-21.05";
-  inputs.napalm.url = "github:ngi-nix/napalm";
+  # Just to remind me that I need to push this into upstream
+  inputs.napalm.url = "github:ngi-nix/napalm/node-gyp-fix";
 
   # Web shell repos:
   inputs.webshell-sandbox = {
@@ -51,20 +52,16 @@
           overlays = [ self.overlay ];
         });
 
-      buildWebShellApp = import ./buildWebShellApp.nix;
-      buildSandboxWithApps = import ./buildSanboxWithApps.nix;
+      buildWebShellApp = final: { ... }@args : final.callPackage (import ./buildWebShellApp.nix) args;
+      buildSandboxWithApps = final: { ... }@args : final.callPackage (import ./buildSanboxWithApps.nix) args;
     in {
       # A Nixpkgs overlay.
-      overlay = final: prev:
-        let
-          # Safer solution than using overlay in this case
-          buildNapalmPackage = (napalm.overlay final prev).napalm.buildPackage;
-        in {
+      overlay = final: prev: {
           # Most of WebShell programs do not have
           # parcel-builder in their package.json
           # so it needed to be added manually
           webshell = rec {
-            sandbox = buildWebShellApp final buildNapalmPackage {
+            sandbox = buildWebShellApp final {
               inherit version;
               pname = "sandbox";
 
@@ -73,7 +70,7 @@
               src = webshell-sandbox;
             };
 
-            app-textarea = buildWebShellApp final buildNapalmPackage {
+            app-textarea = buildWebShellApp final {
               inherit version;
               pname = "app-textarea";
 
@@ -84,7 +81,7 @@
             # This is very specific case, as this program
             # is a vanilla javascript app and does not
             # even have lock file
-            app-example-image = buildWebShellApp final buildNapalmPackage {
+            app-example-image = buildWebShellApp final {
               inherit version;
               pname = "app-example-image";
 
@@ -97,7 +94,7 @@
               npmCommands = [ "npm install" ];
             };
 
-            app-ace = buildWebShellApp final buildNapalmPackage {
+            app-ace = buildWebShellApp final {
               inherit version;
               pname = "app-ace";
 
@@ -106,7 +103,7 @@
               packageLock = ./package-locks/app-ace.json;
             };
 
-            app-jsoneditor = buildWebShellApp final buildNapalmPackage {
+            app-jsoneditor = buildWebShellApp final {
               inherit version;
               pname = "app-jsoneditor";
 
@@ -114,7 +111,7 @@
               src = webshell-app-jsoneditor;
             };
 
-            app-quill = buildWebShellApp final buildNapalmPackage {
+            app-quill = buildWebShellApp final {
               inherit version;
               pname = "app-quill";
 
@@ -137,11 +134,11 @@
             };
           } // {
             # Export useful WebShell packaging functions in the overlay
-            buildWebShellApp = buildWebShellApp final
-              ((napalm.overlay final prev).napalm.buildPackage);
+            buildWebShellApp = buildWebShellApp final;
             buildSandboxWithApps = buildSandboxWithApps final;
-          };
-        };
+          }; 
+      } # This ensures propagation of napalm in the overlay:
+      // (napalm.overlay final prev);
 
       # Provide some binary packages for selected system types.
       packages = forAllSystems (system: {

@@ -5,15 +5,16 @@
         "nixpkgs": "nixpkgs"
       },
       "locked": {
-        "lastModified": 1628583202,
-        "narHash": "sha256-I9fFJcwsJleBaX9KlC+PSYsL6/f7cJQNJo1i5jXN1wM=",
+        "lastModified": 1628603894,
+        "narHash": "sha256-FkRLely+Pe3FnMEOer70Hi0v0gZIoHXcMkAj3MenKYo=",
         "owner": "ngi-nix",
         "repo": "napalm",
-        "rev": "8c887ded2dbd1e8bc1ad6ab5a7f0ef0b466795b1",
+        "rev": "ce16fbd9dda7f82d7e2cfc85926f3ea388063f55",
         "type": "github"
       },
       "original": {
         "owner": "ngi-nix",
+        "ref": "node-gyp-fix",
         "repo": "napalm",
         "type": "github"
       }
