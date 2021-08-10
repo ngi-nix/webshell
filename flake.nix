@@ -38,7 +38,7 @@
       version = "0.2.1";
 
       # System types to support.
-      supportedSystems = [ "x86_64-linux" ];
+      supportedSystems = [ "x86_64-linux" "aarch64-linux" "i686-linux" "x86_64-darwin" ];
 
       # Helper function to generate an attrset '{ x86_64-linux = f "x86_64-linux"; ... }'.
       forAllSystems = f:
@@ -60,23 +60,24 @@
           # Safer solution than using overlay in this case
           buildNapalmPackage = (napalm.overlay final prev).napalm.buildPackage;
         in {
+          # Most of WebShell programs do not have
+          # parcel-builder in their package.json
+          # so it needed to be added manually
           webshell = rec {
             sandbox = buildWebShellApp final buildNapalmPackage {
               inherit version;
               pname = "sandbox";
 
+              # Python3 is needed for node-gyp
+              buildInputs = [ final.python3 ];
               src = webshell-sandbox;
-
-              npmCommands = [
-                "npm install --ignore-scripts --loglevel verbose"
-                "npm run build"
-              ];
             };
 
             app-textarea = buildWebShellApp final buildNapalmPackage {
               inherit version;
               pname = "app-textarea";
 
+              buildInputs = [ final.nodePackages.parcel-bundler ];
               src = webshell-app-textarea;
             };
 
@@ -100,6 +101,7 @@
               inherit version;
               pname = "app-ace";
 
+              buildInputs = [ final.nodePackages.parcel-bundler ];
               src = webshell-app-ace;
               packageLock = ./package-locks/app-ace.json;
             };
@@ -108,6 +110,7 @@
               inherit version;
               pname = "app-jsoneditor";
 
+              buildInputs = [ final.nodePackages.parcel-bundler ];
               src = webshell-app-jsoneditor;
             };
 
@@ -115,6 +118,7 @@
               inherit version;
               pname = "app-quill";
 
+              buildInputs = [ final.nodePackages.parcel-bundler ];
               src = webshell-app-quill;
             };
 

@@ -6,24 +6,35 @@
 final: # Should be inherited from overlay
 buildNapalmPackage: # It is basically: (napalm.overlay final prev).napalm.buildPackage
 { src, pname, version, # These are common derivation thing
-  additionalBuildCommand ? "cd src; NODE_ENV=production parcel build index.html --public-url=/${pname}/ --out-dir=../docs; cd .." # This is build command that will be applied AFTER installing all npm related stuff that napalm does, usually you want to put here somthing from your package.json. In case of default WebShell apps it uses parcel to build everything into docs/ folder, you may want to modify this depending on your needs.
-, packageLock ? null # This can be a path to custom package-lock.json file, if you can't/don't want to modify original's repo lock.
-, npmCommands ? [ "npm install --loglevel verbose" "npm run build" ] # These are the commands that are executed by napalm, you usually want to specify this argument
+additionalBuildCommand ?
+  "cd src; NODE_ENV=production parcel build index.html --public-url=/${pname}/ --out-dir=../docs; cd .." # This is build command that will be applied AFTER installing all npm related stuff that napalm does, usually you want to put here somthing from your package.json. In case of default WebShell apps it uses parcel to build everything into docs/ folder, you may want to modify this depending on your needs.
+, packageLock ?
+  null # This can be a path to custom package-lock.json file, if you can't/don't want to modify original's repo lock.
+, npmCommands ? [
+  "npm install --loglevel verbose --nodedir=${final.nodejs}/include/node"
+  "npm run build"
+] # These are the commands that are executed by napalm, you usually want to specify this argument
+, buildInputs ? [ ] # Additional build inputs
 }:
 let
   app-data = buildNapalmPackage src ({
-    inherit npmCommands version;
+    inherit npmCommands version buildInputs;
     name = pname;
-    buildInputs = with final; [ nodePackages.parcel-bundler ];
   } // (if !isNull packageLock then { inherit packageLock; } else { }));
 in final.stdenv.mkDerivation {
   inherit version pname;
   src = app-data;
 
-  buildInputs = with final; [ nodePackages.parcel-bundler ];
+  buildInputs = [ final.nodePackages.npm ] ++ buildInputs;
 
   buildPhase = ''
     cd _napalm-install
+
+    # Add npm binaries to the path
+    export PATH="$(npm bin):$PATH"
+
+    echo Running custom build command:
+    echo "${additionalBuildCommand}" 
 
     ${additionalBuildCommand}
     # This is my custom script for testing server
@@ -40,8 +51,8 @@ in final.stdenv.mkDerivation {
   '';
 
   installPhase = ''
-    mkdir -p $out/${pname}
+    mkdir -p "$out/"
     cp -rd docs bin $out
-    cp -rd docs/* $out/${pname}
+    cp -rd $out/docs $out/${pname}
   '';
 }
