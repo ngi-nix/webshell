@@ -19,7 +19,6 @@ let
 in napalm.buildPackage src ({
   inherit version buildInputs;
   name = pname;
-  patchPackages = true;
 
   npmCommands = [ "npm install --nodedir=${nodejs}/include/node" ]
     ++ (if yarned then [
