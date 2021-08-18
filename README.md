@@ -24,7 +24,7 @@ nix build .#<Some package>
 nix build .
 ```
 
-In order to run some app via simple python server, use:
+In order to run some app via npm-http server, use:
 ```bash
 nix run .#<Some package>
 # or to run main app (Full Webshell suite):
@@ -35,7 +35,15 @@ It is worth to mention that each app has it's own url, so for example to acces `
 
 ## Using provided builders
 
-Builders used in this flake are provided in the flake's overlay. If you want to get started with them, you can run `nix flake init -t "github:ngi-nix/webshell"`. This will create an example flake project.
+Builders used in this flake are provided in the flake's overlay. If you want to get started with them, you can run `nix flake init -t "github:ngi-nix/webshell"`. This will create an example flake project. You can also look into `flake.nix` to see how default WebShell app are packaged.
+
+### What is expected to be in typical WebShell app
+
+There are some assumptions when building WebShell app with provided builders:
+
+- App should contain `package.json` with `build` script.
+- App should contain `package-lock.json` (its location can be specified by `packageLock ` argument)
+- App can contain `yarn.lock`, although in order to be loaded correctly you need to set `yarned` to `true`
 
 ### Available builders
 

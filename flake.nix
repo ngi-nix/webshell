@@ -4,7 +4,7 @@
   # Nixpkgs / NixOS version to use.
   inputs.nixpkgs.url = "nixpkgs/nixos-21.05";
   # Just to remind me that I need to push this into upstream
-  inputs.napalm.url = "github:ngi-nix/napalm/node-gyp-fix";
+  inputs.napalm.url = "github:ngi-nix/napalm/npm-override";
 
   # Web shell repos:
   inputs.webshell-sandbox = {
@@ -65,6 +65,7 @@
               inherit version;
               pname = "sandbox";
 
+              yarned = true;
               # Python3 is needed for node-gyp
               buildInputs = [ final.python3 ];
               src = webshell-sandbox;
@@ -81,17 +82,38 @@
             # This is very specific case, as this program
             # is a vanilla javascript app and does not
             # even have lock file
-            app-example-image = buildWebShellApp final {
+            app-example-image = with final; stdenv.mkDerivation rec {
               inherit version;
               pname = "app-example-image";
 
               src = webshell-app-example-image;
-              packageLock = ./package-locks/app-example-image.json;
-              additionalBuildCommand = ''
+
+              buildPhase = ''
+                # This is my custom script for testing server
+                # 
+                # It uses simple python server, which behaves similary
+                # to the github pages, which are used in production
+                mkdir bin
+                cat > bin/${pname} << EOL
+                #!/bin/sh
+                ${python3}/bin/python3 -m http.server --directory \\
+                EOL
+                echo $out >> bin/${pname}
+                chmod +x bin/${pname}
+
                 mkdir docs
-                cp ./*.html ./*.css ./*.js ./*.svg ./*.json docs
+                
+                IFS=$'\n'
+                for file in $(find . -type f); do
+                    mv $file docs/ 
+                done
               '';
-              npmCommands = [ "npm install" ];
+
+              installPhase = ''
+                mkdir -p "$out/"
+                cp -rd docs bin $out
+                cp -rd $out/docs $out/${pname}
+              '';
             };
 
             app-ace = buildWebShellApp final {
