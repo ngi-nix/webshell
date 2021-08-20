@@ -147,11 +147,11 @@
 
               inherit sandbox;
               apps = [
-                "${app-textarea}/app-textarea"
-                "${app-quill}/app-quill"
-                "${app-jsoneditor}/app-jsoneditor"
-                "${app-example-image}/app-example-image"
-                "${app-ace}/app-ace"
+                app-textarea
+                app-quill
+                app-jsoneditor
+                app-example-image
+                app-ace
               ];
             };
           } // {

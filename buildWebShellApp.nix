@@ -18,7 +18,7 @@ let
 
 in napalm.buildPackage src ({
   inherit version buildInputs;
-  name = pname;
+  name = "${pname}-${version}";
 
   npmCommands = [ "npm install --nodedir=${nodejs}/include/node" ]
     ++ (if yarned then [
@@ -43,5 +43,7 @@ in napalm.buildPackage src ({
     cp -rd docs bin $out
     cp -rd $out/docs $out/${pname}
   '';
+
+  passthru.pname = pname;
 } // (if !isNull packageLock then { inherit packageLock; } else { }))
 
