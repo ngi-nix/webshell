@@ -17,8 +17,7 @@ let
   };
 
 in napalm.buildPackage src ({
-  inherit version buildInputs;
-  name = "${pname}-${version}";
+  inherit pname version buildInputs;
 
   npmCommands = [ "npm install --nodedir=${nodejs}/include/node" ]
     ++ (if yarned then [
@@ -33,9 +32,9 @@ in napalm.buildPackage src ({
     mkdir bin
     cat > bin/${pname} << EOL
     #!/bin/sh
-    ${nodePackages.http-server}/bin/http-server \\
+    ${nodePackages.http-server}/bin/http-server $out
     EOL
-    echo $out >> bin/${pname}
+    chmod +x bin/${pname}
   '';
 
   installPhase = ''

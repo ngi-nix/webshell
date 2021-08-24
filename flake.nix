@@ -51,113 +51,30 @@
           inherit system;
           overlays = [ self.overlay ];
         });
-
-      buildWebShellApp = final: { ... }@args : final.callPackage (import ./buildWebShellApp.nix) args;
-      buildSandboxWithApps = final: { ... }@args : final.callPackage (import ./buildSanboxWithApps.nix) args;
     in {
       # A Nixpkgs overlay.
       overlay = final: prev: {
           # Most of WebShell programs do not have
           # parcel-builder in their package.json
           # so it needed to be added manually
-          webshell = rec {
-            sandbox = buildWebShellApp final {
-              inherit version;
-              pname = "sandbox";
+          webshell = {
+            sandbox = final.callPackage ./apps/sandbox.nix { inherit version; src = webshell-sandbox; };
 
-              yarned = true;
-              # Python3 is needed for node-gyp
-              buildInputs = [ final.python3 ];
-              src = webshell-sandbox;
-            };
+            app-textarea = final.callPackage ./apps/app-textarea.nix { inherit version; src = webshell-app-textarea; };
 
-            app-textarea = buildWebShellApp final {
-              inherit version;
-              pname = "app-textarea";
+            app-example-image = final.callPackage ./apps/app-example-image.nix { inherit version; src = webshell-app-example-image; };
+            
+            app-ace = final.callPackage ./apps/app-ace.nix { inherit version; src = webshell-app-ace; };
 
-              buildInputs = [ final.nodePackages.parcel-bundler ];
-              src = webshell-app-textarea;
-            };
+            app-jsoneditor = final.callPackage ./apps/app-jsoneditor.nix { inherit version; src = webshell-app-jsoneditor; };
 
-            # This is very specific case, as this program
-            # is a vanilla javascript app and does not
-            # even have lock file
-            app-example-image = with final; stdenv.mkDerivation rec {
-              inherit version;
-              pname = "app-example-image";
+            app-quill = final.callPackage ./apps/app-quill.nix { inherit version; src = webshell-app-quill; };
 
-              src = webshell-app-example-image;
+            full = final.callPackage ./apps/full.nix { inherit version; };
 
-              buildPhase = ''
-                # This is my custom script for testing server
-                # 
-                # It uses simple python server, which behaves similary
-                # to the github pages, which are used in production
-                mkdir bin
-                cat > bin/${pname} << EOL
-                #!/bin/sh
-                ${python3}/bin/python3 -m http.server --directory \\
-                EOL
-                echo $out >> bin/${pname}
-                chmod +x bin/${pname}
-
-                mkdir docs
-                
-                IFS=$'\n'
-                for file in $(find . -type f); do
-                    mv $file docs/ 
-                done
-              '';
-
-              installPhase = ''
-                mkdir -p "$out/"
-                cp -rd docs bin $out
-                cp -rd $out/docs $out/${pname}
-              '';
-            };
-
-            app-ace = buildWebShellApp final {
-              inherit version;
-              pname = "app-ace";
-
-              buildInputs = [ final.nodePackages.parcel-bundler ];
-              src = webshell-app-ace;
-              packageLock = ./package-locks/app-ace.json;
-            };
-
-            app-jsoneditor = buildWebShellApp final {
-              inherit version;
-              pname = "app-jsoneditor";
-
-              buildInputs = [ final.nodePackages.parcel-bundler ];
-              src = webshell-app-jsoneditor;
-            };
-
-            app-quill = buildWebShellApp final {
-              inherit version;
-              pname = "app-quill";
-
-              buildInputs = [ final.nodePackages.parcel-bundler ];
-              src = webshell-app-quill;
-            };
-
-            full = buildSandboxWithApps final {
-              inherit version;
-              pname = "webshell-full";
-
-              inherit sandbox;
-              apps = [
-                app-textarea
-                app-quill
-                app-jsoneditor
-                app-example-image
-                app-ace
-              ];
-            };
-          } // {
             # Export useful WebShell packaging functions in the overlay
-            buildWebShellApp = buildWebShellApp final;
-            buildSandboxWithApps = buildSandboxWithApps final;
+            buildWebShellApp = final.callPackage (import ./buildWebShellApp.nix);
+            buildSandboxWithApps = final.callPackage (import ./buildSanboxWithApps.nix);
           }; 
       } # This ensures propagation of napalm in the overlay:
       // (napalm.overlay final prev);

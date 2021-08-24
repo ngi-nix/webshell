@@ -27,9 +27,8 @@ in stdenv.mkDerivation {
     rm -r bin/*
     cat > bin/${pname} << EOL
     #!/bin/sh
-    ${nodePackages.http-server}/bin/http-server \\
+    ${nodePackages.http-server}/bin/http-server $out
     EOL
-    echo $out >> bin/${pname}
     chmod +x bin/${pname}
 
     #echo ${builtins.toJSON knownApps} > docs/known.apps.json
