@@ -6,6 +6,8 @@
   # Just to remind me that I need to push this into upstream
   inputs.napalm.url = "github:ngi-nix/napalm/npm-override";
 
+  inputs.flake-utils.url = "github:numtide/flake-utils";
+
   # Web shell repos:
   inputs.webshell-sandbox = {
     url = "github:websh-org/sandbox";
@@ -32,25 +34,11 @@
     flake = false;
   };
 
-  outputs = { self, nixpkgs, webshell-sandbox, webshell-app-textarea
+  outputs = { self, nixpkgs, flake-utils, webshell-sandbox, webshell-app-textarea
     , webshell-app-example-image, webshell-app-ace, webshell-app-jsoneditor
     , webshell-app-quill, napalm }:
     let
       version = "0.2.1";
-
-      # System types to support.
-      supportedSystems = [ "x86_64-linux" "aarch64-linux" "i686-linux" "x86_64-darwin" ];
-
-      # Helper function to generate an attrset '{ x86_64-linux = f "x86_64-linux"; ... }'.
-      forAllSystems = f:
-        nixpkgs.lib.genAttrs supportedSystems (system: f system);
-
-      # Nixpkgs instantiated for supported system types.
-      nixpkgsFor = forAllSystems (system:
-        import nixpkgs {
-          inherit system;
-          overlays = [ self.overlay ];
-        });
     in {
       # A Nixpkgs overlay.
       overlay = final: prev: {
@@ -79,23 +67,20 @@
       } # This ensures propagation of napalm in the overlay:
       // (napalm.overlay final prev);
 
-      # Provide some binary packages for selected system types.
-      packages = forAllSystems (system: {
-        inherit (nixpkgsFor.${system}.webshell)
-          sandbox app-textarea app-example-image app-ace app-jsoneditor
-          app-quill full;
-      });
-
-      # The default package for 'nix build'. This makes sense if the
-      # flake provides only one package or there is a clear "main"
-      # package.
-      defaultPackage = forAllSystems (system: self.packages.${system}.full);
-
-      checks = self.packages;
-
       defaultTemplate = {
         path = ./template;
         description = "Template for making custom Webshell apps and suites";
       };
-    };
+
+    } // flake-utils.lib.eachDefaultSystem (system:
+      let
+        pkgs = import nixpkgs { inherit system; overlays = [ self.overlay ]; };
+      in rec {
+        packages = { inherit (pkgs.webshell) sandbox app-textarea app-example-image app-ace app-jsoneditor
+          app-quill full; };
+
+        defaultPackage = pkgs.webshell.full;
+
+        checks = packages;
+    });
 }
