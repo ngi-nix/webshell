@@ -5,7 +5,8 @@
 # bin - Contains script with the name of the program, that starts server that hosts desired package
 { src, pname, version, # These are common derivation things
 napalm, stdenv, nodePackages, nodejs, mkYarnModules, yarned ? false
-, packageLock ? null # This can be a path to custom package-lock.json file, if you can't/don't want to modify original's repo lock.
+, packageLock ?
+  null # This can be a path to custom package-lock.json file, if you can't/don't want to modify original's repo lock.
 , buildInputs ? [ ] # Additional build inputs
 }:
 let

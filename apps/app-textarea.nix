@@ -1,7 +1,7 @@
 { webshell, nodePackages, version, src, ... }:
 webshell.buildWebShellApp {
-    inherit version src;
-    pname = "app-textarea";
+  inherit version src;
+  pname = "app-textarea";
 
-    buildInputs = [ nodePackages.parcel-bundler ];
+  buildInputs = [ nodePackages.parcel-bundler ];
 }

@@ -3,10 +3,10 @@
 # is a vanilla javascript app and does not
 # even have lock file
 stdenv.mkDerivation rec {
-    inherit version src;
-    pname = "app-example-image";
+  inherit version src;
+  pname = "app-example-image";
 
-    buildPhase = ''
+  buildPhase = ''
     mkdir docs
     find . -type f -exec mv {} docs/ \;
 
@@ -16,11 +16,11 @@ stdenv.mkDerivation rec {
     ${nodePackages.http-server}/bin/http-server $out
     EOL
     chmod +x bin/${pname}
-    '';
+  '';
 
-    installPhase = ''
+  installPhase = ''
     mkdir -p "$out/"
     cp -rd docs bin $out
     cp -rd $out/docs $out/${pname}
-    '';
+  '';
 }

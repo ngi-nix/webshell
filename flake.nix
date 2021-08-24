@@ -34,38 +34,58 @@
     flake = false;
   };
 
-  outputs = { self, nixpkgs, flake-utils, webshell-sandbox, webshell-app-textarea
-    , webshell-app-example-image, webshell-app-ace, webshell-app-jsoneditor
-    , webshell-app-quill, napalm }:
-    let
-      version = "0.2.1";
+  outputs = { self, nixpkgs, flake-utils, webshell-sandbox
+    , webshell-app-textarea, webshell-app-example-image, webshell-app-ace
+    , webshell-app-jsoneditor, webshell-app-quill, napalm }:
+    let version = "0.2.1";
     in {
       # A Nixpkgs overlay.
-      overlay = final: prev: {
+      overlay = final: prev:
+        {
           # Most of WebShell programs do not have
           # parcel-builder in their package.json
           # so it needed to be added manually
           webshell = {
-            sandbox = final.callPackage ./apps/sandbox.nix { inherit version; src = webshell-sandbox; };
+            sandbox = final.callPackage ./apps/sandbox.nix {
+              inherit version;
+              src = webshell-sandbox;
+            };
 
-            app-textarea = final.callPackage ./apps/app-textarea.nix { inherit version; src = webshell-app-textarea; };
+            app-textarea = final.callPackage ./apps/app-textarea.nix {
+              inherit version;
+              src = webshell-app-textarea;
+            };
 
-            app-example-image = final.callPackage ./apps/app-example-image.nix { inherit version; src = webshell-app-example-image; };
-            
-            app-ace = final.callPackage ./apps/app-ace.nix { inherit version; src = webshell-app-ace; };
+            app-example-image = final.callPackage ./apps/app-example-image.nix {
+              inherit version;
+              src = webshell-app-example-image;
+            };
 
-            app-jsoneditor = final.callPackage ./apps/app-jsoneditor.nix { inherit version; src = webshell-app-jsoneditor; };
+            app-ace = final.callPackage ./apps/app-ace.nix {
+              inherit version;
+              src = webshell-app-ace;
+            };
 
-            app-quill = final.callPackage ./apps/app-quill.nix { inherit version; src = webshell-app-quill; };
+            app-jsoneditor = final.callPackage ./apps/app-jsoneditor.nix {
+              inherit version;
+              src = webshell-app-jsoneditor;
+            };
+
+            app-quill = final.callPackage ./apps/app-quill.nix {
+              inherit version;
+              src = webshell-app-quill;
+            };
 
             full = final.callPackage ./apps/full.nix { inherit version; };
 
             # Export useful WebShell packaging functions in the overlay
-            buildWebShellApp = final.callPackage (import ./buildWebShellApp.nix);
-            buildSandboxWithApps = final.callPackage (import ./buildSanboxWithApps.nix);
-          }; 
-      } # This ensures propagation of napalm in the overlay:
-      // (napalm.overlay final prev);
+            buildWebShellApp =
+              final.callPackage (import ./buildWebShellApp.nix);
+            buildSandboxWithApps =
+              final.callPackage (import ./buildSanboxWithApps.nix);
+          };
+        } # This ensures propagation of napalm in the overlay:
+        // (napalm.overlay final prev);
 
       defaultTemplate = {
         path = ./template;
@@ -74,13 +94,19 @@
 
     } // flake-utils.lib.eachDefaultSystem (system:
       let
-        pkgs = import nixpkgs { inherit system; overlays = [ self.overlay ]; };
+        pkgs = import nixpkgs {
+          inherit system;
+          overlays = [ self.overlay ];
+        };
       in rec {
-        packages = { inherit (pkgs.webshell) sandbox app-textarea app-example-image app-ace app-jsoneditor
-          app-quill full; };
+        packages = {
+          inherit (pkgs.webshell)
+            sandbox app-textarea app-example-image app-ace app-jsoneditor
+            app-quill full;
+        };
 
         defaultPackage = pkgs.webshell.full;
 
         checks = packages;
-    });
+      });
 }
