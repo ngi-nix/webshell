@@ -7,7 +7,7 @@ WebShell is an open-source online desktop environment.
 
 This repo contains flake that allows user to easily build default WebShell apps as well as the main sandbox. It also provides builders to package custom WebShell apps.
 
-*This repo strongly relies on [Napalm project](https://github.com/nix-community/napalm), whenever I refer to `napalm`, I mean this project*
+*This repo strongly relies on [Napalm project](https://github.com/nix-community/napalm), whenever I refer to `napalm`, I mean this project. Currently this repo uses my custom fork of this project, which can be found [here](https://github.com/ngi-nix/napalm/tree/npm-override). I am currently trying to [upstream it](https://github.com/nix-community/napalm/pull/38).*
 
 ## Some tips how to use the flake
 
