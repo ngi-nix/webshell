@@ -20,14 +20,18 @@ let
 in napalm.buildPackage src ({
   inherit pname version buildInputs;
 
-  npmCommands = [ "npm install --nodedir=${nodejs}/include/node" ]
-    ++ (if yarned then [
-      "cp -rf ${yarned-modules}/node_modules/* ./node_modules"
-      "chmod -R +rw ./node_modules"
-      "cp -rf ${yarned-modules}/deps ."
-      "chmod -R +rw ./deps"
-    ] else
-      [ ]) ++ [ "npm run build" ];
+  npmCommands = ''
+    npm install --nodedir=${nodejs}/include/node
+
+    ${if yarned then ''
+    cp -rf ${yarned-modules}/node_modules/* ./node_modules
+    chmod -R +rw ./node_modules
+    cp -rf ${yarned-modules}/deps .
+    chmod -R +rw ./deps
+    '' else ""}
+
+    npm run build
+  '';
 
   postBuild = ''
     mkdir bin
@@ -45,5 +49,5 @@ in napalm.buildPackage src ({
   '';
 
   passthru.pname = pname;
-} // (if !isNull packageLock then { inherit packageLock; } else { }))
+} // (if packageLock != null then { inherit packageLock; } else { }))
 

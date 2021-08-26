@@ -2,10 +2,10 @@
   description = "An open-source online desktop environment";
 
   # Nixpkgs / NixOS version to use.
-  inputs.nixpkgs.url = "nixpkgs/nixos-21.05";
-  # Just to remind me that I need to push this into upstream
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-21.05";
+  # Use my custom version of napalm, that isn't upstreamed yet
   inputs.napalm.url = "github:ngi-nix/napalm/npm-override";
-
+  # Use flake-utils to reduce some generic code
   inputs.flake-utils.url = "github:numtide/flake-utils";
 
   # Web shell repos:
@@ -80,9 +80,9 @@
 
             # Export useful WebShell packaging functions in the overlay
             buildWebShellApp =
-              final.callPackage (import ./buildWebShellApp.nix);
+              final.callPackage ./buildWebShellApp.nix;
             buildSandboxWithApps =
-              final.callPackage (import ./buildSanboxWithApps.nix);
+              final.callPackage ./buildSanboxWithApps.nix;
           };
         } # This ensures propagation of napalm in the overlay:
         // (napalm.overlay final prev);
@@ -105,8 +105,9 @@
             app-quill full;
         };
 
+        # Default package and checks builds full
+        # which consists of all of the apps.
         defaultPackage = pkgs.webshell.full;
-
-        checks = packages;
+        checks = pkgs.webshell.full;
       });
 }
